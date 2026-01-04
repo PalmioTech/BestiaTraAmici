@@ -622,6 +622,99 @@ function renderHistoryTable(){
     tbl.innerHTML = thead + '<tbody>' + rows + '</tbody>' + '<tfoot>' + totals + '</tfoot>';
 }
 
+function eurosToCents(x){
+    return Math.round(Number(x) * 100);
+}
+function centsToEuroStr(cents){
+    const v = cents / 100;
+    return '€ ' + v.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+/**
+ * Calcola pagamenti minimi per chiudere i conti:
+ * - chi ha totale negativo paga
+ * - chi ha totale positivo riceve
+ */
+function computeSettlements(){
+    // usa i totals già calcolati
+    const creditors = [];
+    const debtors = [];
+
+    state.players.forEach(p=>{
+        const c = eurosToCents(p.total || 0);
+        if (c > 0) creditors.push({ id: p.id, name: p.name, cents: c });
+        else if (c < 0) debtors.push({ id: p.id, name: p.name, cents: c }); // negativo
+    });
+
+    // ordini comodi
+    creditors.sort((a,b)=> b.cents - a.cents);
+    debtors.sort((a,b)=> a.cents - b.cents); // più negativo prima
+
+    const transfers = [];
+    let i = 0, j = 0;
+
+    while (i < debtors.length && j < creditors.length){
+        const d = debtors[i];
+        const c = creditors[j];
+
+        const pay = Math.min(-d.cents, c.cents); // quanto paga d a c
+        if (pay > 0){
+            transfers.push({
+                from: d.name,
+                to: c.name,
+                cents: pay
+            });
+            d.cents += pay;   // verso 0
+            c.cents -= pay;   // verso 0
+        }
+
+        if (d.cents === 0) i++;
+        if (c.cents === 0) j++;
+    }
+
+    return transfers;
+}
+
+function openAccountsModal(){
+    const wrap = document.getElementById('accountsSummary');
+    const transfers = computeSettlements();
+
+    if (!wrap) return;
+
+    if (transfers.length === 0){
+        wrap.innerHTML = `
+      <div class="item">
+        <strong>Nessun pagamento necessario.</strong>
+        <div class="small muted">Tutti i totali sono già a 0.</div>
+      </div>
+    `;
+        document.getElementById('accountsModal').showModal();
+        return;
+    }
+
+    const rows = transfers.map(t => `
+    <tr>
+      <td><strong>${t.from}</strong></td>
+      <td class="center">→</td>
+      <td><strong>${t.to}</strong></td>
+      <td class="right"><strong>${centsToEuroStr(t.cents)}</strong></td>
+    </tr>
+  `).join('');
+
+    wrap.innerHTML = `
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Paga</th><th class="center"></th><th>Riceve</th><th class="right">Importo</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+  `;
+
+    document.getElementById('accountsModal').showModal();
+}
+
 // ===== Render =====
 function render(){
     if($('potValTop')) $('potValTop').textContent = '€ ' + currency(state.pot);
@@ -787,6 +880,12 @@ function resetGame(){
 document.addEventListener('DOMContentLoaded', ()=>{
     on($('resetBtn'),'click',resetGame);
     on($('undoBtn'),'click',undo);
+    on($('accountsBtn'),'click',(e)=>{
+        e.preventDefault();
+        // assicuriamoci che i totali siano aggiornati
+        recomputeTotals();
+        openAccountsModal();
+    });
 
     on($('addPlayerBtn'),'click',()=>{
         addPlayer($('newName').value);

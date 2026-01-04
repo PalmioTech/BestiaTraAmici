@@ -9,22 +9,24 @@
 </head>
 <body>
 <div class="container">
-    <header class="topbar">
-        <div>
+    <header class="appHeader">
+        <div class="titleBlock">
             <h1>Contatore Bestia</h1>
             <p class="small muted">Inserisci i giocatori, chiudi le iscrizioni (imposta la posta), poi usa “Avvia mano”.</p>
         </div>
 
-        <div class="top-actions">
-            <div class="pot-pill">
-                <span class="small muted">Bestia</span>
-                <strong id="potValTop">€ 0,00</strong>
-            </div>
+        <div class="potSticky" id="potSticky">
+            <div class="potSticky-label">Bestia</div>
+            <div class="potSticky-value" id="potValTop">€ 0,00</div>
+        </div>
 
-            <button id="undoBtn" title="Annulla">↩️ Annulla</button>
-            <button id="resetBtn" class="btn-red" title="Resetta">🧹 Reset</button>
+        <div class="headerActions">
+            <button id="accountsBtn" class="btn-primary">💸 Conti</button>
+            <button id="undoBtn" class="btn-blue">↩️ Annulla</button>
+            <button id="resetBtn" class="btn-red">🧹 Reset</button>
         </div>
     </header>
+
 
     <div class="grid">
         <!-- SINISTRA: Giocatori + Storico -->
@@ -196,6 +198,20 @@
 
         <div class="footer">
             <button class="btn-blue">Chiudi</button>
+        </div>
+    </form>
+</dialog>
+<!-- MODALE: Conti finali -->
+<dialog id="accountsModal">
+    <form method="dialog" class="modal">
+        <h3 class="section-title">💸 Conti (chi dà a chi)</h3>
+        <p class="small muted" style="margin-top:-6px">
+            Basato sui totali attuali. Se finisse ora, questi pagamenti chiudono i conti.
+        </p>
+        <div id="accountsSummary" class="mt-8"></div>
+
+        <div class="footer">
+            <button class="btn-blue">OK</button>
         </div>
     </form>
 </dialog>
