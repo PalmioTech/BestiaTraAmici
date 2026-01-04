@@ -3,32 +3,22 @@
     --text:#1f2937; --muted:#6b7280; --green:#10b981; --blue:#3b82f6; --red:#ef4444;
 }
 *{box-sizing:border-box}
-body{
-    margin:0;
-    font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
-    background:linear-gradient(var(--bg1),var(--bg2)); color:var(--text)
-}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
+    background:linear-gradient(var(--bg1),var(--bg2));color:var(--text)}
 .container{max-width:1100px;margin:0 auto;padding:20px 16px}
-.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:12px}
 h1{margin:0 0 4px;font-size:28px}
+
+.top-actions{display:flex;align-items:center;gap:10px}
 
 .grid{display:grid;gap:16px}
 @media(min-width:980px){.grid{grid-template-columns:1fr 1fr}}
-
-.card{
-    background:var(--card); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
-    border:1px solid var(--border); border-radius:16px; box-shadow:0 1px 2px rgba(0,0,0,.06); padding:16px
-}
+.card{background:var(--card);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+    border:1px solid var(--border);border-radius:16px;box-shadow:0 1px 2px rgba(0,0,0,.06);padding:16px}
 .section-title{display:flex;align-items:center;gap:8px;margin:0 0 12px;font-weight:600}
 .row{display:grid;gap:8px}
-@media(min-width:640px){
-    .row.cols-3{grid-template-columns:1fr 1fr 1fr}
-    .row.cols-2{grid-template-columns:1fr 1fr}
-}
-.mt-8{margin-top:12px} .mt-12{margin-top:16px}
+@media(min-width:640px){.row.cols-3{grid-template-columns:1fr 1fr 1fr}.row.cols-2{grid-template-columns:1fr 1fr}}
 .small{font-size:12px}.muted{color:var(--muted)}
-.center{text-align:center}
-
 input,select{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:12px;outline:none}
 button{appearance:none;border:1px solid var(--border);background:white;border-radius:14px;padding:8px 12px;font-size:14px;cursor:pointer}
 button:hover{filter:brightness(.98)}
@@ -36,73 +26,63 @@ button:hover{filter:brightness(.98)}
 .btn-blue{border-color:#bfdbfe;background:#eff6ff}
 .btn-green{border-color:#a7f3d0;background:#ecfdf5}
 .btn-red{border-color:#fecaca;background:#fef2f2}
-
 .table{width:100%;border-collapse:collapse}
 .table th,.table td{padding:8px;border-bottom:1px solid var(--border);text-align:left}
 .table tfoot td{font-weight:700;border-top:2px solid var(--border)}
 .right{text-align:right}
 .scroll-x{overflow:auto}
-.dealer-pill{border:1px dashed var(--border);border-radius:12px;padding:8px 10px}
-.pot-big{font-weight:800;font-size:36px}
+.pot-big{font-weight:700;font-size:22px}
+
+.list{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
+.item{background:#fff;border:1px solid var(--border);border-radius:12px;padding:8px}
+
+dialog{border:none;border-radius:16px;max-width:900px;width:clamp(320px,92vw,900px);padding:0}
+dialog::backdrop{background:rgba(0,0,0,.25)}
+.modal{padding:16px}
+.modal .footer{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+.tag{display:inline-block;border:1px solid var(--border);border-radius:999px;padding:2px 8px;font-size:12px;background:#fff}
 
 /* cards selezionabili */
-.list{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
-.list.tight{grid-template-columns:1fr;gap:10px}
 .choice{
-    position:relative; border:1px solid var(--border); border-radius:12px; padding:10px;
-    cursor:pointer; user-select:none; background:#fff; display:flex; align-items:center; justify-content:center;
+    position:relative;
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:10px;
+    cursor:pointer;
+    user-select:none;
+    background:#fff;
+    text-align:left;
 }
+.choice.center{text-align:center}
 .choice:hover{background:#f9fafb}
 .choice.selected{outline:2px solid #bfdbfe; background:#eff6ff}
 .choice input[type="checkbox"]{position:absolute; inset:0; opacity:0; pointer-events:none}
 
-/* dialog */
-dialog{border:none;border-radius:16px;max-width:760px;width:clamp(320px,90vw,760px);padding:0}
-dialog::backdrop{background:rgba(0,0,0,.25)}
-.modal{padding:16px}
-.modal .footer{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+.winners-grid .list{grid-template-columns:1fr}
+.list.tight{gap:10px}
 
-.tag{display:inline-block;border:1px solid var(--border);border-radius:999px;padding:2px 8px;font-size:12px;background:#fff}
-
-/* Bestia box in rilievo */
-#potValBox {
-    background:#fffdf5; border:2px solid #fbbf24; border-radius:16px; padding:1.5rem 1rem;
-    text-align:center; box-shadow:0 2px 6px rgba(0,0,0,0.1); transition:transform .2s ease-in-out;
+/* Bestia sempre visibile in topbar */
+.pot-pill{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    justify-content:center;
+    padding:8px 12px;
+    border:2px solid #fbbf24;
+    background:#fffdf5;
+    border-radius:14px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.08);
+    min-width:95px;
 }
-#potValBox:hover { transform: scale(1.02); }
-#potValBox .label { font-size:1rem; color:#9ca3af; display:block; margin-bottom:.5rem; letter-spacing:.5px; }
-#potVal { display:block; color:#b45309; text-shadow:2px 2px 4px rgba(0,0,0,0.25), 0 0 6px rgba(251,191,36,0.4); }
-/* pill bestia in alto */
-.bestia-pill{
-    border:1px solid var(--border);
-    background:#fff;
-    border-radius:999px;
+#potValTop{
+    font-size:18px;
+    font-weight:900;
+    color:#b45309;
+    text-shadow:1px 1px 3px rgba(0,0,0,0.18);
+}
+
+/* mini pulsanti in impostazioni */
+.icon-btn{
     padding:6px 10px;
-    font-size:13px;
-    white-space:nowrap;
+    border-radius:12px;
 }
-
-/* Bestia sempre visibile */
-.potBoxSticky{
-    position: sticky;
-    top: 12px;
-    z-index: 2;
-}
-
-/* su mobile la bestia diventa “barra” fissa */
-@media (max-width: 720px){
-    .potBoxSticky{
-        position: fixed;
-        left: 12px;
-        right: 12px;
-        bottom: 12px;
-        top: auto;
-        z-index: 50;
-    }
-    /* evita che copra contenuti */
-    body{ padding-bottom: 110px; }
-}
-
-/* piccoli layout helpers */
-.top-actions{display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
-.center{text-align:center}

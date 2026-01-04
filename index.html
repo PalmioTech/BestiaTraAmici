@@ -12,32 +12,31 @@
     <header class="topbar">
         <div>
             <h1>Contatore Bestia</h1>
-            <p class="small muted">
-                Inserisci i giocatori (ordine: chi fa le carte, poi il prossimo, ecc). Chiudi le iscrizioni (posta), poi “Avvia mano”.
-            </p>
+            <p class="small muted">Inserisci i giocatori, chiudi le iscrizioni (imposta la posta), poi usa “Avvia mano”.</p>
         </div>
 
         <div class="top-actions">
-            <div class="bestia-pill">
-                Bestia: <strong id="bestiaTop">€ 0,00</strong>
+            <div class="pot-pill">
+                <span class="small muted">Bestia</span>
+                <strong id="potValTop">€ 0,00</strong>
             </div>
-            <button id="settleBtn" class="btn-primary" title="Calcola chi deve dare a chi" disabled>💸 Chiudi conti</button>
+
             <button id="undoBtn" title="Annulla">↩️ Annulla</button>
             <button id="resetBtn" class="btn-red" title="Resetta">🧹 Reset</button>
         </div>
     </header>
 
     <div class="grid">
-        <!-- SINISTRA -->
+        <!-- SINISTRA: Giocatori + Storico -->
         <section class="card">
             <h2 class="section-title">🧑‍🤝‍🧑 Giocatori</h2>
 
-            <!-- Inserimento iniziale / solo quando bestia = 0 -->
+            <!-- inserimento iniziale -->
             <div id="addWrap" class="row cols-3">
                 <div>
                     <label class="small muted">Nome giocatore</label>
                     <input id="newName" placeholder="Es. Marco" />
-                    <p class="small muted" id="addHint" style="margin-top:6px"></p>
+                    <p class="small muted">Ordine: 1=fa le carte ora, 2=le farà dopo, ecc.</p>
                 </div>
                 <div style="align-self:end">
                     <button id="addPlayerBtn" class="btn-primary" style="width:100%">➕ Aggiungi</button>
@@ -47,7 +46,7 @@
                 </div>
             </div>
 
-            <!-- tabella giocatori (solo setup / quando bestia=0) -->
+            <!-- tabella giocatori (solo in setup) -->
             <div id="playersTableWrap" class="mt-8">
                 <table class="table">
                     <thead id="playersHead"></thead>
@@ -64,21 +63,15 @@
             </div>
         </section>
 
-        <!-- DESTRA -->
+        <!-- DESTRA: Impostazioni partita -->
         <section class="card" id="settingsCard">
             <h2 class="section-title">⚙️ Impostazioni partita</h2>
 
-            <div class="row cols-3">
+            <div class="row cols-2">
                 <div id="stakeBlock">
                     <label class="small muted">Posta del mazziere (fissa)</label>
                     <input id="gameStakeInput" type="number" step="0.01" value="0.30" />
                     <p class="small muted">Viene fissata alla chiusura iscrizioni.</p>
-                </div>
-
-                <div id="dealerBlock">
-                    <label class="small muted">Mazziere attuale (ordine d’inserimento)</label>
-                    <div class="dealer-pill" id="dealerName">—</div>
-                    <p class="small muted" id="dealerHint" style="margin-top:6px"></p>
                 </div>
 
                 <div style="align-self:end">
@@ -86,10 +79,13 @@
                 </div>
             </div>
 
-            <!-- Bestia corrente -->
-            <div class="mt-12 potBox potBoxSticky" id="potValBox">
-                <div class="label">Bestia corrente</div>
-                <div id="potVal" class="pot-big">€ 0,00</div>
+            <div class="mt-12">
+                <button id="openSettings" class="btn-blue" style="width:100%">
+                    ⚙️ Impostazioni giocatori
+                </button>
+                <p class="small muted" style="margin-top:8px">
+                    Aggiungi/riordina/rinomina solo quando la Bestia è € 0,00.
+                </p>
             </div>
         </section>
     </div>
@@ -99,7 +95,9 @@
 <dialog id="participantsModal">
     <form method="dialog" class="modal">
         <h3 class="section-title">Chi gioca questa mano?</h3>
-        <p class="small muted" id="participantsOrderHint" style="margin-top:-6px"></p>
+        <div class="small muted" style="margin-bottom:8px">
+            Ordine di scelta: dal primo dopo chi fa le carte → fino a chi fa le carte.
+        </div>
         <div id="participantsList" class="list"></div>
         <div class="footer">
             <button id="participantsConfirm" class="btn-green">Avanti</button>
@@ -119,9 +117,7 @@
 
                 <div class="small muted" style="margin:10px 0 6px">Combinazioni possibili</div>
                 <div id="npGroupCombos" class="list"></div>
-
-                <div class="small muted" style="margin:10px 0 6px">Gruppi selezionati</div>
-                <div id="npSelectedList" class="list"></div>
+                <!-- qui JS aggiunge "Gruppi selezionati" -->
             </div>
 
             <div>
@@ -131,7 +127,7 @@
         </div>
 
         <div class="footer">
-            <button id="npBack" class="btn-blue" value="cancel">← Indietro</button>
+            <button id="npBack" class="btn-blue">Indietro</button>
             <button id="npNext" class="btn-green">Avanti</button>
         </div>
     </form>
@@ -158,13 +154,12 @@
         </div>
 
         <div class="footer">
-            <button id="winnersBack" class="btn-blue" value="cancel">← Indietro</button>
             <button id="winnersConfirm" class="btn-green" disabled>Chiudi mano</button>
         </div>
     </form>
 </dialog>
 
-<!-- MODALE: Esito mano -->
+<!-- MODALE: Riepilogo -->
 <dialog id="resultModal">
     <form method="dialog" class="modal">
         <h3 class="section-title">🧮 Esito mano</h3>
@@ -175,13 +170,32 @@
     </form>
 </dialog>
 
-<!-- MODALE: Chiudi conti -->
-<dialog id="settlementModal">
+<!-- MODALE: Impostazioni giocatori -->
+<dialog id="settingsModal">
     <form method="dialog" class="modal">
-        <h3 class="section-title">💸 Chi deve dare a chi</h3>
-        <div id="settlementBody"></div>
+        <h3 class="section-title">⚙️ Impostazioni giocatori</h3>
+
+        <p class="small muted">
+            Puoi aggiungere/rinominare/riordinare solo quando la Bestia è € 0,00 (e nessuna mano è in corso).
+        </p>
+
+        <div class="row cols-2 mt-8">
+            <div>
+                <label class="small muted">Nuovo giocatore</label>
+                <input id="settingsNewName" placeholder="Es. Luca" />
+            </div>
+            <div style="align-self:end">
+                <button id="settingsAddBtn" class="btn-primary" style="width:100%">➕ Aggiungi</button>
+            </div>
+        </div>
+
+        <div class="mt-12">
+            <div class="small muted" style="margin-bottom:6px">Ordine giocatori (1 = fa le carte ora)</div>
+            <div id="settingsPlayersList" class="row" style="gap:10px"></div>
+        </div>
+
         <div class="footer">
-            <button class="btn-blue">OK</button>
+            <button class="btn-blue">Chiudi</button>
         </div>
     </form>
 </dialog>
