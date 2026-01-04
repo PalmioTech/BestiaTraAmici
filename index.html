@@ -6,37 +6,38 @@
     <title>Contatore Bestia</title>
     <link rel="stylesheet" href="style.css" />
     <script src="script.js" defer></script>
-    <link rel="manifest" href="manifest.webmanifest">
-    <meta name="theme-color" content="#fff7ed">
-    <!-- iOS: icone & status bar -->
-    <link rel="apple-touch-icon" >
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-
 </head>
 <body>
 <div class="container">
     <header class="topbar">
         <div>
             <h1>Contatore Bestia</h1>
-            <p class="small muted">Inserisci i giocatori, chiudi le iscrizioni (imposta la posta), poi usa “Avvia mano”.</p>
+            <p class="small muted">
+                Inserisci i giocatori (ordine: chi fa le carte, poi il prossimo, ecc). Chiudi le iscrizioni (posta), poi “Avvia mano”.
+            </p>
         </div>
+
         <div class="top-actions">
+            <div class="bestia-pill">
+                Bestia: <strong id="bestiaTop">€ 0,00</strong>
+            </div>
+            <button id="settleBtn" class="btn-primary" title="Calcola chi deve dare a chi" disabled>💸 Chiudi conti</button>
             <button id="undoBtn" title="Annulla">↩️ Annulla</button>
             <button id="resetBtn" class="btn-red" title="Resetta">🧹 Reset</button>
         </div>
     </header>
 
     <div class="grid">
-        <!-- SINISTRA: Giocatori + Storico -->
+        <!-- SINISTRA -->
         <section class="card">
             <h2 class="section-title">🧑‍🤝‍🧑 Giocatori</h2>
 
-            <!-- inserimento iniziale -->
+            <!-- Inserimento iniziale / solo quando bestia = 0 -->
             <div id="addWrap" class="row cols-3">
                 <div>
                     <label class="small muted">Nome giocatore</label>
                     <input id="newName" placeholder="Es. Marco" />
+                    <p class="small muted" id="addHint" style="margin-top:6px"></p>
                 </div>
                 <div style="align-self:end">
                     <button id="addPlayerBtn" class="btn-primary" style="width:100%">➕ Aggiungi</button>
@@ -46,7 +47,7 @@
                 </div>
             </div>
 
-            <!-- tabella giocatori (solo in setup) -->
+            <!-- tabella giocatori (solo setup / quando bestia=0) -->
             <div id="playersTableWrap" class="mt-8">
                 <table class="table">
                     <thead id="playersHead"></thead>
@@ -63,7 +64,7 @@
             </div>
         </section>
 
-        <!-- DESTRA: Impostazioni e bestia -->
+        <!-- DESTRA -->
         <section class="card" id="settingsCard">
             <h2 class="section-title">⚙️ Impostazioni partita</h2>
 
@@ -71,14 +72,22 @@
                 <div id="stakeBlock">
                     <label class="small muted">Posta del mazziere (fissa)</label>
                     <input id="gameStakeInput" type="number" step="0.01" value="0.30" />
+                    <p class="small muted">Viene fissata alla chiusura iscrizioni.</p>
                 </div>
+
+                <div id="dealerBlock">
+                    <label class="small muted">Mazziere attuale (ordine d’inserimento)</label>
+                    <div class="dealer-pill" id="dealerName">—</div>
+                    <p class="small muted" id="dealerHint" style="margin-top:6px"></p>
+                </div>
+
                 <div style="align-self:end">
                     <button id="startRound" class="btn-green" style="width:100%">▶️ Avvia mano</button>
                 </div>
             </div>
 
-            <!-- Bestia corrente (in rilievo) -->
-            <div class="mt-12 potBox" id="potValBox">
+            <!-- Bestia corrente -->
+            <div class="mt-12 potBox potBoxSticky" id="potValBox">
                 <div class="label">Bestia corrente</div>
                 <div id="potVal" class="pot-big">€ 0,00</div>
             </div>
@@ -90,6 +99,7 @@
 <dialog id="participantsModal">
     <form method="dialog" class="modal">
         <h3 class="section-title">Chi gioca questa mano?</h3>
+        <p class="small muted" id="participantsOrderHint" style="margin-top:-6px"></p>
         <div id="participantsList" class="list"></div>
         <div class="footer">
             <button id="participantsConfirm" class="btn-green">Avanti</button>
@@ -97,7 +107,7 @@
     </form>
 </dialog>
 
-<!-- MODALE: Non partecipanti (rientro/gruppi) -->
+<!-- MODALE: Non partecipanti -->
 <dialog id="npModal">
     <form method="dialog" class="modal">
         <h3 class="section-title">Non partecipanti: rientro o gruppi</h3>
@@ -105,13 +115,13 @@
         <div class="row cols-2">
             <div>
                 <label class="small muted">In quanti volete rientrare?</label>
-                <div id="npSizeWrap" class="row cols-3">
-                    <div class="choice center" data-size="2">2</div>
-                    <div class="choice center" data-size="3">3</div>
-                    <div class="choice center" data-size="4">4</div>
-                </div>
+                <div id="npSizeWrap" class="row cols-3"></div>
+
                 <div class="small muted" style="margin:10px 0 6px">Combinazioni possibili</div>
                 <div id="npGroupCombos" class="list"></div>
+
+                <div class="small muted" style="margin:10px 0 6px">Gruppi selezionati</div>
+                <div id="npSelectedList" class="list"></div>
             </div>
 
             <div>
@@ -120,22 +130,18 @@
             </div>
         </div>
 
-        <!-- Gruppi selezionati (persistono) -->
-        <div class="mt-8">
-            <div class="small muted">Gruppi selezionati</div>
-            <div id="npGroupsList" class="list"></div>
-        </div>
-
         <div class="footer">
-            <button id="npNext" class="btn-blue">Avanti</button>
+            <button id="npBack" class="btn-blue" value="cancel">← Indietro</button>
+            <button id="npNext" class="btn-green">Avanti</button>
         </div>
     </form>
 </dialog>
 
-<!-- MODALE: Vincitori 1ª/2ª/3ª -->
+<!-- MODALE: Vincitori -->
 <dialog id="winnersModal">
     <form method="dialog" class="modal">
         <h3 class="section-title">Assegna 1ª / 2ª / 3ª</h3>
+
         <div class="row cols-3 winners-grid">
             <div>
                 <div class="small muted center" id="hand1Title">1ª mano</div>
@@ -150,13 +156,15 @@
                 <div id="hand3" class="list tight"></div>
             </div>
         </div>
+
         <div class="footer">
+            <button id="winnersBack" class="btn-blue" value="cancel">← Indietro</button>
             <button id="winnersConfirm" class="btn-green" disabled>Chiudi mano</button>
         </div>
     </form>
 </dialog>
 
-<!-- MODALE: Riepilogo esito -->
+<!-- MODALE: Esito mano -->
 <dialog id="resultModal">
     <form method="dialog" class="modal">
         <h3 class="section-title">🧮 Esito mano</h3>
@@ -166,5 +174,17 @@
         </div>
     </form>
 </dialog>
+
+<!-- MODALE: Chiudi conti -->
+<dialog id="settlementModal">
+    <form method="dialog" class="modal">
+        <h3 class="section-title">💸 Chi deve dare a chi</h3>
+        <div id="settlementBody"></div>
+        <div class="footer">
+            <button class="btn-blue">OK</button>
+        </div>
+    </form>
+</dialog>
+
 </body>
 </html>
