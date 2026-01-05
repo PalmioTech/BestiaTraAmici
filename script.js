@@ -131,16 +131,31 @@ function addPlayer(name){
 }
 
 function removePlayer(id){
-    if(state.locked) return;
-    if(!canEditPlayers()) { alert('Puoi modificare i giocatori solo quando la Bestia è € 0,00.'); return; }
-    const i=state.players.findIndex(p=>p.id===id); if(i<0) return;
-    const r=state.players[i]; state.players.splice(i,1);
-    // sistema dealerIndex
-    state.dealerIndex = Math.min(state.dealerIndex, Math.max(0, state.players.length-1));
-    addHistory(()=>{ state.players.push(r); recomputeTotals(); });
+    // si può modificare solo se bestia = 0
+    if (state.pot !== 0) {
+        alert('Puoi modificare i giocatori solo quando la Bestia è € 0,00');
+        return;
+    }
+
+    // rimuovi dal round
+    state.round.participants.delete(id);
+    state.round.groups = state.round.groups
+        .map(g => ({ ...g, memberIds: g.memberIds.filter(pid => pid !== id) }))
+        .filter(g => g.memberIds.length > 0);
+
+    // rimuovi dallo storico mani
+    state.hands.forEach(h => {
+        delete h.deltas[id];
+    });
+
+    // rimuovi dai giocatori
+    state.players = state.players.filter(p => p.id !== id);
+
     recomputeTotals();
-    render(); save();
+    render();
+    save();
 }
+
 
 function lockPlayers(){
     if(state.locked) return;
