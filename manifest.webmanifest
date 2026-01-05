@@ -1,12 +1,15 @@
 {
   "name": "Contatore Bestia",
   "short_name": "Bestia",
-  "start_url": "./index.html",
+  "start_url": ".",
   "display": "standalone",
-  "background_color": "#fff7ed",
-  "theme_color": "#fff7ed",
+  "background_color": "#F6E7C1",
+  "theme_color": "#F6C453",
   "icons": [
-    { "src": "contaBestia.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "contaBestia.png", "sizes": "512x512", "type": "image/png" }
+    {
+      "src": "contaBestia.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
   ]
 }
